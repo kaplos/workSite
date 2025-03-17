@@ -2,3 +2,8 @@
 height: 100%;
 width: 100%;
 }
+@import "tailwindcss";
+@import "tailwindcss/utilities";
+@import "tailwindcss/components";
+@import "tailwindcss/base";
+
