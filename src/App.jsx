@@ -2,9 +2,9 @@ import { useState,useEffect, } from 'react'
 import Products from './pages/Products';
 import Returns from './pages/Returns';
 import ProductManager from './pages/ProductManager';
+import NavBar from './components/NavBar';
 import { BrowserRouter, Routes, Route ,useLocation,useNavigate} from "react-router-dom";
 import './App.css'
-import NavBar from './components/NavBar';
 import { Navigate } from "react-router-dom";
 
 function App() {
