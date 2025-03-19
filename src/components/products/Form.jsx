@@ -57,11 +57,9 @@ export default function Form({setProducts,products,showUploadDetails}) {
     qty:1,
     width:3.5
   });
-  useEffect(()=>{
+ 
 
-  },[loadingImage])
-
-  useEffect(()=>{
+useEffect(()=>{
     if(showUploadDetails){
       setValues(showUploadDetails)
       setSelectedImages(JSON.parse(showUploadDetails.images))

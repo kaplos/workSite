@@ -1,9 +1,11 @@
 import { useState,useEffect, } from 'react'
 import Products from './pages/Products';
 import Returns from './pages/Returns';
+import ProductManager from './pages/ProductManager';
 import { BrowserRouter, Routes, Route ,useLocation,useNavigate} from "react-router-dom";
 import './App.css'
 import NavBar from './components/NavBar';
+import { Navigate } from "react-router-dom";
 
 function App() {
   
@@ -33,15 +35,24 @@ function App() {
     const data = await getResultFromClickedItem.json();
     console.log(data)
     setObjectInfo(data)
-    navigate(`/${tab}`);
+    if(tab==='upload'){
+    
+      navigate(`/productManager`);
+      console.log('Handling click in upload tab');
+    }else{
+
+      navigate(`/${tab}`);
+    }
   }
   return (
     <div className="w-full h-full flex flex-col bg-gray-200">
       <NavBar tab={tab} setTab={setTab} handleSearch={handleSearch} handleClick={onClick}/>
       <div className='w-full h-full'>
-        <Routes>
-          <Route path="/upload" element={<Products showUploadDetails={objectInfo} setUploadDetails={setObjectInfo}/>} />
+        <Routes >
+          <Route path="/upload" element={<Products />} />
           <Route path="/return" element={<Returns showReturnDetails={objectInfo} setReturnDetails={setObjectInfo}/>} />
+          <Route path="/productManager" element={<ProductManager showProductDetails={objectInfo} setShowProductDetails={setObjectInfo} />} />
+          <Route path="/" element={<Navigate to="/return" />}/>
 
         </Routes>
       </div>
