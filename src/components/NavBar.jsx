@@ -7,6 +7,7 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
   const [searchResults, setSearchResults] = useState([]);
   const [type, setType] = useState("");
   const [message, setMessage] = useState("");
+  const [shown,setShown] = useState(false)
 
   const searchResultsRef = useRef();
 
@@ -18,17 +19,13 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
         setLoading(true);
         handleSearch(searchTerm)
           .then((results) => {
-            console.log(results, "handle search results");
 
-            const resultsArray = results?.value
-              ? Array.isArray(results.value)
-                ? results.value
-                : [results.value]
-              : [];
-
-            if (resultsArray.length > 0) {
-              setSearchResults(resultsArray);
-              setType(results.type);
+            const {type,value} = results
+            
+            if (value.length > 0) {
+              setSearchResults(value);
+              setType(type);
+              setShown(true)
             } else {
               setMessage("No results found");
               setSearchResults([]);
@@ -65,6 +62,33 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
     setTab(e.target.text.toLowerCase());
     console.log(e.target.text.toLowerCase(), "clicked", tab);
   };
+  
+  const typeToCard = {
+    upload: (result) => (
+      <>
+        <h1 className="text-md font-bold text-gray-800">Name: {result.name}</h1>
+        <p className="text-sm text-gray-500 mt-1">SKU: {result.sku}</p>
+      </>
+    ),
+    return: (result) => (
+      <>
+        <h1 className="text-md font-bold text-gray-800">Order Number: {result.orderNumber}</h1>
+        <p className="text-sm text-gray-500 mt-1">Tracking Number: {result.trackingNumber}</p>
+      </>
+    ),
+    product: (result) => (
+      
+      <>
+        <h1 className="text-md font-bold text-gray-800">Product Name: {result.productName}</h1>
+        <p className="text-sm text-gray-500 mt-1">Category: {result.category}</p>
+      </>
+    ),
+    // Add more types as needed
+  };
+  
+  const defaultCard = (message) => (
+    <p className="text-sm text-gray-500">{message}</p>
+  );
 
   return (
     <div className="border-b-2 border-gray-300">
@@ -117,29 +141,37 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                   </svg>
                 </div>
               )}
-              {(Array.isArray(searchResults) && searchResults.length > 0) || message ? (
+
+              {searchResults.length > 0 || message ? (
                 <div
                   ref={searchResultsRef}
-                  className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1"
+                  className={`absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 ${shown? '':'hidden'}`}
                 >
-                  {Array.isArray(searchResults) && searchResults.length > 0 ? (
+                  
+                  { 
                     <ul>
                       {searchResults.map((result, index) => {
-                        console.log(result, "Current result in map"); // Debugging each result
+                        console.log(result, "Current result in map"); 
+                        // Debugging each result
+                        const renderCard = typeToCard[type] || (() => defaultCard(message));
+
                         return (
                           <li
                             key={index}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleClick(result.id)}
+                            className=" hover:bg-gray-100 cursor-pointer"
+                            onClick={() => { handleClick(result.id); setShown(false) }}
                           >
-                            {result[type] || "No data available"}
+                           <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full">
+                           {/* <h1 className="text-md font-bold text-gray-800">Name: {result.name}</h1>
+                           <p className="text-sm text-gray-500 mt-1">SKU: {result.sku}</p> */}
+                              {renderCard(result)}
+                            </div>
+                            {/* {result.name || result.trackingNumber || "No data available"} */}
                           </li>
                         );
                       })}
                     </ul>
-                  ) : (
-                    <p className="px-4 py-2 text-gray-500">{message}</p>
-                  )}
+                  }
                 </div>
               ) : null}
             </div>

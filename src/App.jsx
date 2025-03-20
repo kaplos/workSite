@@ -24,10 +24,10 @@ function App() {
   }, [location]);
 
   const handleSearch = async (searchTerm)=>{
-    const result = await fetch(`${ENV.VITE_API_URL}/search?page=${tab}&term=${searchTerm}`)
+    const result = await fetch(`${ENV.VITE_API_URL}/search?term=${searchTerm}`)
     const data = await result.json()
-    console.log(data)
-    return data.length ===0? '' : data
+    console.log(data, 'data for call')
+    return data.length===0? '' : data
   }
   const onClick =async(id)=>{
     console.log('clicked item')

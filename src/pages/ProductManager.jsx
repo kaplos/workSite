@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import MoveableImage from "../components/MovableImage";
+import {useNavigate} from "react-router-dom";
+
 const ProductManager = ({ showProductDetails, setShowProductDetails }) => {
     const ENV = import.meta.env;
     const [product, setProduct] = useState(showProductDetails || {});
     const [loading, setLoading] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
-  useEffect(() => {
+  
+    const navigate = useNavigate();
+
+    useEffect(() => {
     if (showProductDetails) {
       setProduct(showProductDetails);
       setSelectedImages(JSON.parse(showProductDetails.images)|| []);
@@ -37,7 +42,9 @@ const ProductManager = ({ showProductDetails, setShowProductDetails }) => {
         return response.json();
       })
       .then((updatedProduct) => {
-        setShowProductDetails(null); // Update the parent state
+        setShowProductDetails(null); 
+        navigate('/upload')
+        // Update the parent state
         // alert("Product updated successfully!");
       })
       .catch((error) => console.error("Error updating product:", error));
