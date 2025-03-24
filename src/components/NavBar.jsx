@@ -53,7 +53,7 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
-
+  
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -161,12 +161,9 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                             className=" hover:bg-gray-100 cursor-pointer"
                             onClick={() => { handleClick(result.id); setShown(false) }}
                           >
-                           <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full">
-                           {/* <h1 className="text-md font-bold text-gray-800">Name: {result.name}</h1>
-                           <p className="text-sm text-gray-500 mt-1">SKU: {result.sku}</p> */}
+                            <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full hover:bg-gray-100">
                               {renderCard(result)}
                             </div>
-                            {/* {result.name || result.trackingNumber || "No data available"} */}
                           </li>
                         );
                       })}

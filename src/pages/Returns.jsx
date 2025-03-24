@@ -48,7 +48,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(trackingNumber.length ===0 || !orderNumber.length===0 || items.length === 0){
+        if((trackingNumber.length === 0 && orderNumber.length === 0)){
             TrackingNumberRef.current.className = 'border-2 border-red-600  rounded-lg p-2';
             TrackingNumberRef.current.focus();
             return;
