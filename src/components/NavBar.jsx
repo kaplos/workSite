@@ -21,15 +21,16 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
           .then((results) => {
 
             const {type,value} = results
-            
+            if(!value){
+              setMessage("No results found");
+              setSearchResults(null);
+              return
+            }
             if (value.length > 0) {
               setSearchResults(value);
               setType(type);
               setShown(true)
-            } else {
-              setMessage("No results found");
-              setSearchResults([]);
-            }
+            } 
 
             if (searchResultsRef.current) {
               searchResultsRef.current.focus();
@@ -53,7 +54,7 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
-  
+
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -141,8 +142,8 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                   </svg>
                 </div>
               )}
-
-              {searchResults.length > 0 || message ? (
+             
+              {searchResults ?(
                 <div
                   ref={searchResultsRef}
                   className={`absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 ${shown? '':'hidden'}`}
@@ -153,13 +154,13 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                       {searchResults.map((result, index) => {
                         console.log(result, "Current result in map"); 
                         // Debugging each result
-                        const renderCard = typeToCard[type] || (() => defaultCard(message));
+                        const renderCard = typeToCard[type];
 
                         return (
                           <li
                             key={index}
                             className=" hover:bg-gray-100 cursor-pointer"
-                            onClick={() => { handleClick(result.id); setShown(false) }}
+                            onClick={() => { handleClick(result.id,type); setShown(false) }}
                           >
                             <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full hover:bg-gray-100">
                               {renderCard(result)}
@@ -170,7 +171,11 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                     </ul>
                   }
                 </div>
-              ) : null}
+              ) : (
+                <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full hover:bg-gray-100">
+                  {defaultCard(message)}
+                </div>
+              )}
             </div>
             <button
               data-collapse-toggle="mobile-menu-3"

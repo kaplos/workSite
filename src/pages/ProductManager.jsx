@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MoveableImage from "../components/MovableImage";
 import {useNavigate} from "react-router-dom";
-
+import ShoeInventory from "../components/ShoeWidthTable";
 const ProductManager = ({ showProductDetails, setShowProductDetails }) => {
     const ENV = import.meta.env;
     const [product, setProduct] = useState(showProductDetails || {});
@@ -241,7 +241,8 @@ const ProductManager = ({ showProductDetails, setShowProductDetails }) => {
                   onChange={handleChange}
                   className="border border-gray-300 px-2 py-1 w-full"
                 />
-            </div>     
+            </div>   
+            <div><ShoeInventory/>  </div>
         
         <div className="flex gap-2 mt-4">
           <button

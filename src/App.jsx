@@ -6,7 +6,6 @@ import NavBar from './components/NavBar';
 import { BrowserRouter, Routes, Route ,useLocation,useNavigate} from "react-router-dom";
 import './App.css'
 import { Navigate } from "react-router-dom";
-
 function App() {
   
   let [tab, setTab] = useState('upload');
@@ -29,19 +28,19 @@ function App() {
     console.log(data, 'data for call')
     return data.length===0? '' : data
   }
-  const onClick =async(id)=>{
+const onClick =async(id,type)=>{
     console.log('clicked item')
-    const getResultFromClickedItem = await fetch(`${ENV.VITE_API_URL}/id?page=${tab}&id=${id}`)
+    const getResultFromClickedItem = await fetch(`${ENV.VITE_API_URL}/id?page=${type}&id=${id}`)
     const data = await getResultFromClickedItem.json();
     console.log(data)
     setObjectInfo(data)
-    if(tab==='upload'){
+    if(type==='upload'){
     
       navigate(`/productManager`);
       console.log('Handling click in upload tab');
     }else{
 
-      navigate(`/${tab}`);
+      navigate(`/${type}`);
     }
   }
   return (

@@ -2,6 +2,8 @@ import React, { useState,useEffect,useRef } from 'react';
 import History from '../components/products/History';
 import Modal from '../components/products/Modal';
 import {useNavigate} from "react-router-dom";
+import {RotatingLines} from 'react-loader-spinner'
+import {onClick } from '../utils/ApiUtils'
 
 export default function Returns({showReturnDetails,setReturnDetails}) {
     console.log(showReturnDetails,'showReturnDetails')
@@ -11,23 +13,37 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
     const [trackingNumber, setTrackingNumber] = useState('');
     const [orderNumber, setOrderNumber] = useState('');
     const [items, setItems] = useState([]);
-    const [submitted, setSubmitted] = useState([]);
+    const [submitted, setSubmitted] = useState(()=>{
+        const data = localStorage.getItem('returns');
+        return data ? JSON.parse(data) : [];
+    });
     const [returnForm, setReturnForm] = useState([]);
     const [isOpened,setIsOpened] = useState(false);
     const [selectedItem,setSelectedItem] = useState(null);
-
+    const [isLoading,setIsLoading] = useState(false)
     const navigate = useNavigate();
     useEffect(()=>{
         if(showReturnDetails){
             setReturnForm(showReturnDetails)
             setTrackingNumber(showReturnDetails.trackingNumber)
             setOrderNumber(showReturnDetails.orderNumber)
-            setItems(JSON.parse(showReturnDetails.items))
+            let items 
+            try{
+                items = JSON.parse(showReturnDetails.items)
+            } catch{
+                items = showReturnDetails.items
+            }
+            setItems(items)
             console.log(trackingNumber,orderNumber,items,'after clicking an item from search')
             // setIsShowingDetails(true)
         }
         console.log(showReturnDetails)
     },[showReturnDetails])
+  
+    
+    useEffect(() => {
+        localStorage.setItem('returns', JSON.stringify(submitted));
+    }, [submitted]);
 
     const ENV = import.meta.env;
 
@@ -69,7 +85,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
         };
 
         setReturnForm({...returnForm,trackingNumber:trackingNumber,orderNumber:orderNumber,items:items,type:"return", });
-        
+        setIsLoading(true)
         try {
             const method = showReturnDetails? 'update':'return';
             const response = await fetch(`${ENV.VITE_API_URL}/${method}`, {
@@ -80,6 +96,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                 body: JSON.stringify(showReturnDetails?returnForm:formData)
             });
             const data = await response.json();
+            setIsLoading(false)
             if(data.success){
                 setSubmitted([...submitted, formData]);
                 setTrackingNumber('');
@@ -89,6 +106,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
             }
 
         } catch (error) {
+            setIsLoading(false)
             console.error('Error submitting return:', error);
         }
     };
@@ -99,9 +117,10 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
         }
     };
     const handleClick = (ret) => {
-        
-        setSelectedItem(ret);
-        setIsOpened(true);
+        setReturnDetails(ret)
+        // setSelectedItem(ret);
+
+        // setIsOpened(true);
         // console.log(product, "product clicked", products[product]);
     
     }
@@ -178,8 +197,19 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                             ref={ItemsRef}
                         />
                     </div>
+                    {
+                        isLoading ? 
+                            <RotatingLines
+                                strokeColor="grey"
+                                strokeWidth="5"
+                                animationDuration="0.75"
+                                width="15"
+                                visible={true}
+                            />
+                            :
 
-                    <button type={showReturnDetails? "submit":'hidden'} className={"mt-4 bg-blue-500 text-white py-2 px-4 rounded"}>Submit</button>
+                        <button type={showReturnDetails? "submit":'hidden'} className={"mt-4 bg-blue-500 text-white py-2 px-4 rounded"}>Submit</button>
+                    }
             </form>
         )
     }
@@ -314,10 +344,15 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
           </div>
             <div className="flex flex-row">
                 <button type="submit" onClick={() => {
-                setReturnDetails(null);
-                navigate('/return');
-              }} 
-              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+                    setReturnForm(null)
+                    setTrackingNumber("")
+                    setOrderNumber("")
+                    setItems([])
+                    setReturnDetails(null);
+                    navigate('/return');
+
+                }} 
+                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
               >
                   cancel
                 </button>
