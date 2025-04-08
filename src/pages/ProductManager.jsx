@@ -7,15 +7,26 @@ const ProductManager = ({ showProductDetails, setShowProductDetails }) => {
     const [product, setProduct] = useState(showProductDetails || {});
     const [loading, setLoading] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
-  
     const navigate = useNavigate();
 
     useEffect(() => {
-    if (showProductDetails) {
-      setProduct(showProductDetails);
-      setSelectedImages(JSON.parse(showProductDetails.images)|| []);
-    }
-  }, [showProductDetails]);
+      // Check if showProductDetails exists before setting state
+      if (showProductDetails) {
+        setProduct(showProductDetails);
+        
+        // Safely parse images or set as empty array if invalid
+        try {
+          setSelectedImages(JSON.parse(showProductDetails.images) || []);
+        } catch (error) {
+          console.error("Error parsing images:", error);
+          setSelectedImages([]); // Fallback to an empty array if parsing fails
+        }
+      }
+    
+      // Fetch sizes for the product asynchronously
+      
+    
+    }, [showProductDetails])
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -242,7 +253,7 @@ const ProductManager = ({ showProductDetails, setShowProductDetails }) => {
                   className="border border-gray-300 px-2 py-1 w-full"
                 />
             </div>   
-            <div><ShoeInventory/>  </div>
+            <div><ShoeInventory sku={product.sku}/>  </div>
         
         <div className="flex gap-2 mt-4">
           <button

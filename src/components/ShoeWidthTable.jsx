@@ -1,11 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function ShoeInventory() {
-  const [inventory, setInventory] = useState([
-    { id: 1, width: "C", size: 5, stock: 1 },
-    { id: 2, width: "C", size: 5.5, stock: 3 },
-    { id: 3, width: "C", size: 6, stock: 6 },
-  ]);
+export default function ShoeInventory({sku}) {
+  const ENV = import.meta.env;
+
+  console.log(sku)
+  const [inventory, setInventory] = useState([]);
+  // useEffect(()=>{
+  //   setInventory(sizes)
+  // },[sizes])
+    useEffect(()=>{
+      const sizes = async () => {
+        try {
+          const response = await fetch(`${ENV.VITE_API_URL}/getSizes?sku=${sku}`);
+          const data = await response.json(); // Parse response to JSON
+          setInventory(data)
+          console.log(data); // Log or process the fetched sizes data
+        } catch (error) {
+          console.error("Error fetching sizes:", error);
+        }
+      };
+        sizes();
+    },[sku])
 
   const [form, setForm] = useState({ width: "", sizes: [], stock: "" });
   const [showDropdown, setShowDropdown] = useState(false);
