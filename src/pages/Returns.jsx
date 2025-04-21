@@ -8,35 +8,35 @@ import {onClick } from '../utils/ApiUtils'
 export default function Returns({showReturnDetails,setReturnDetails}) {
     console.log(showReturnDetails,'showReturnDetails')
     
-    const [trackingNumber, setTrackingNumber] = useState('');
-    const [orderNumber, setOrderNumber] = useState('');
-    const [items, setItems] = useState([]);
-    const [unrefunded, setUnrefunded] = useState(null);// i might not need this
+    
     const [submitted, setSubmitted] = useState(()=>{
         const data = localStorage.getItem('returns');
         return data ? JSON.parse(data) : [];
     });
-    const [returnForm, setReturnForm] = useState([]);
+    const [returnForm, setReturnForm] = useState({
+        created_At: "",
+        items: [],
+        orderNumber: "",
+        refunded: false,
+        refunded_At: "",
+        trackingNumber: '',
+        type:"return"});
+
     const [isShowingDetails,setIsShowingDetails] = useState(false);
     const [isOpened,setIsOpened] = useState(false);
     const [selectedItem,setSelectedItem] = useState(null);
     const [isLoading,setIsLoading] = useState(false)
-    const navigate = useNavigate();
+
 
     useEffect(()=>{
         if(showReturnDetails){
-
-            handleSetStates(showReturnDetails)
+           handleSetStates(showReturnDetails)
             setIsShowingDetails(true);
-            // console.log(trackingNumber,orderNumber,items,'after clicking an item from search')
-            // setIsShowingDetails(true)
         }
         console.log(showReturnDetails)
     },[showReturnDetails])
 
-    // useEffect(()=>{
-
-    // })
+  
     
     useEffect(() => {
         localStorage.setItem('returns', JSON.stringify(submitted));
@@ -54,29 +54,27 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
     }, [])
  
     const removeItem = (index) => {
-        const updatedItems = [...items];
+        const updatedItems = [...returnForm.items];
         updatedItems.splice(index, 1);
-        setItems(updatedItems);
+        setReturnForm({ ...returnForm, items: updatedItems });
     }
     const handleSetStates = (returnToShow) =>{
-        const {trackingNumber,orderNumber,items} = returnToShow;
-        setReturnForm(returnToShow)
-        setTrackingNumber(trackingNumber)
-        setOrderNumber(orderNumber)
-            try{
-                setItems(JSON.parse(items))
+        const {items,...rest} = showReturnDetails
+        
+        try{
+                setReturnForm({...rest,items:JSON.parse(items),type:"return"})
             } catch{
-                setItems(items)
+                setReturnForm({...rest,items:items,type:"return"})
             }
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if((trackingNumber.length === 0 && orderNumber.length === 0)){
+        if((returnForm.trackingNumber.length === 0 && returnForm.orderNumber.length === 0)){
             TrackingNumberRef.current.className = 'border-2 border-red-600  rounded-lg p-2';
             TrackingNumberRef.current.focus();
             return;
-        }else if(items.length === 0){
+        }else if(returnForm.items.length === 0){
             ItemsRef.current.className = 'border-2 border-red-600  rounded-lg p-2';
             ItemsRef.current.focus();
             return;
@@ -84,15 +82,15 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
 
 
         // TrackingNumberRef.current.className = 'border-2 border-black rounded-lg p-2';
-        const formData = {
-            trackingNumber,
-            orderNumber,
-            items,
-            date: new Date().toLocaleDateString(),
-            refunded: false
-        };
+        // const formData = {
+        //     trackingNumber,
+        //     orderNumber,
+        //     items,
+        //     date: new Date().toLocaleDateString(),
+        //     refunded: false
+        // };
 
-        setReturnForm({...returnForm,trackingNumber:trackingNumber,orderNumber:orderNumber,items:items,type:"return", });
+        // setReturnForm({...returnForm,trackingNumber:trackingNumber,orderNumber:orderNumber,items:items,type:"return", });
         setIsLoading(true)
         try {
             const method = isShowingDetails? 'update':'return';
@@ -101,15 +99,13 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(isShowingDetails?returnForm:formData)
+                body: JSON.stringify(returnForm)
             });
             const data = await response.json();
             setIsLoading(false)
             if(data.success){
                 setSubmitted([...submitted, formData]);
-                setTrackingNumber('');
-                setOrderNumber('');
-                setItems([]);
+                
                 TrackingNumberRef.current.focus()
             }
 
@@ -126,14 +122,19 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
     };
     const handleClick = (ret) => {
         setIsShowingDetails(true);
-        handleSetStates(ret)
-        // setReturnDetails(ret)
-        // setSelectedItem(ret);
 
-        // setIsOpened(true);
-        // console.log(product, "product clicked", products[product]);
+        handleSetStates(ret)
+        
     
     }
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setReturnForm((prevForm) => ({
+            ...prevForm,
+            [name]: value
+        }));
+    };
+
     const renderForm = () =>{
         return (
             <form onSubmit={handleSubmit} className="flex flex-col w-full h-full p-4">
@@ -144,26 +145,28 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                             type="text"
                             id="tracking-number"
                             placeholder="Enter tracking number"
-                            value={trackingNumber}
+                            name='trackingNumber'
+                            value={returnForm.trackingNumber}
                             ref={TrackingNumberRef}
-                            onChange={(e) => setTrackingNumber(e.target.value)}
+                            onChange={handleChange}
                             onKeyPress={(e) => handleKeyPress(e, ItemsRef)}
                         />
                     </div>
                     <div className="mb-4 flex flex-col">
                         <label htmlFor="order-number">Order Number</label>
                         <input
+                            name='orderNumber'
                             className='border-2 border-black rounded-lg p-2'
                             type="text"
                             id="order-number"
                             placeholder="Enter order number"
-                            value={orderNumber}
-                            onChange={(e) => setOrderNumber(e.target.value)}
+                            value={returnForm.orderNumber}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="mb-4 flex flex-col">
                         <label htmlFor="items">Items:</label>
-                        {items.length > 0 ? (
+                        {returnForm.items.length > 0 ? (
                             <table className="table-auto border-collapse border border-black">
                                 <thead>
                                     <tr>
@@ -172,7 +175,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {items.map((item, index) => (
+                                    {returnForm.items.map((item, index) => (
                                         <tr key={index}>
                                             <td className="border border-black px-4 py-2">{item}</td>
                                             <td className="border border-black px-4 py-2"><button className='p-2 bg-red-700 text-white rounded-lg ' onClick={()=>removeItem(index)}>x</button></td>
@@ -193,13 +196,13 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
 
                                 if(e.key === 'Enter' && !e.target.value.match(/^[0-9]/) && e.target.value !== '') {
                                     e.preventDefault();
-                                    setItems([...items, e.target.value]);
+                                    setReturnForm({...returnForm,items:[...returnForm.items, e.target.value]});
                                     e.target.value = '';
                                     handleKeyPress(e, ItemsRef)
                                 }else if(e.key === 'Enter' && e.target.value.match(/^[0-9]/)){
                                     e.preventDefault();
                                     handleSubmit(e)
-                                    setTrackingNumber(e.target.value);
+                                    setReturnForm({...returnForm,trackingNumber:e.target.value});
                                     e.target.value = '';
                                     handleKeyPress(e, ItemsRef);
                                 }
@@ -236,9 +239,10 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                             type="text"
                             id="tracking-number"
                             placeholder="Enter tracking number"
-                            value={trackingNumber}
+                            value={returnForm.trackingNumber}
+                            name='trackingNumber'
                             ref={TrackingNumberRef}
-                            onChange={(e) => setTrackingNumber(e.target.value)}
+                            onChange={handleChange}
                             onKeyPress={(e) => handleKeyPress(e, ItemsRef)}
                         />
                     </div>
@@ -249,13 +253,14 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                             type="text"
                             id="order-number"
                             placeholder="Enter order number"
-                            value={orderNumber}
-                            onChange={(e) => setOrderNumber(e.target.value)}
+                            name='orderNumber'
+                            value={returnForm.orderNumber}
+                            onChange={handleChange}
                         />
                     </div>
             <div className="mb-4 flex flex-col">
               <label htmlFor="items">Items:</label>
-              {items.length > 0 ? (
+              {returnForm.items.length > 0 ? (
                 <table className="table-auto border-collapse border border-black">
                   <thead>
                     <tr>
@@ -264,7 +269,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((item, index) => (
+                    {returnForm.items.map((item, index) => (
                       <tr key={index}>
                         <td className="border border-black px-4 py-2">
                           <input
@@ -272,9 +277,9 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                             value={item}
                             className="border-2 border-black rounded-lg p-2 w-full"
                             onChange={(e) => {
-                              const updatedItems = [...items];
+                              const updatedItems = [...returnForm.items];
                               updatedItems[index] = e.target.value;
-                              setItems(updatedItems);
+                              setReturnForm({ ...returnForm, items: updatedItems });
                             }}
                           />
                         </td>
@@ -295,24 +300,25 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                     className={` rounded-lg p-2`}
                     type={"text"}
                     id="items"
+
                     placeholder="Enter item"
                     // value={items}
                     onChange={(e) => console.log(e.target.value)}
                     onKeyDown={(e) => {
 
-                        if(e.key === 'Enter' && !e.target.value.match(/^[0-9]/) && e.target.value !== '') {
-                            e.preventDefault();
-                            setItems([...items, e.target.value]);
-                            e.target.value = '';
-                            handleKeyPress(e, ItemsRef)
-                        }else if(e.key === 'Enter' && e.target.value.match(/^[0-9]/)){
-                            e.preventDefault();
-                            handleSubmit(e)
-                            setTrackingNumber(e.target.value);
-                            e.target.value = '';
-                            handleKeyPress(e, ItemsRef);
-                        }
-                    }}
+                                if(e.key === 'Enter' && !e.target.value.match(/^[0-9]/) && e.target.value !== '') {
+                                    e.preventDefault();
+                                    setReturnForm({...returnForm,items:[...returnForm.items, e.target.value]});
+                                    e.target.value = '';
+                                    handleKeyPress(e, ItemsRef)
+                                }else if(e.key === 'Enter' && e.target.value.match(/^[0-9]/)){
+                                    e.preventDefault();
+                                    handleSubmit(e)
+                                    setReturnForm({...returnForm,trackingNumber:e.target.value});
+                                    e.target.value = '';
+                                    handleKeyPress(e, ItemsRef);
+                                }
+                            }}
                     ref={ItemsRef}
                 />
             </div>
@@ -354,9 +360,9 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                 <button type="submit" onClick={() => {
                     setIsShowingDetails(false)
                     setReturnForm(null)
-                    setTrackingNumber("")
-                    setOrderNumber("")
-                    setItems([])
+                    // setTrackingNumber("")
+                    // setOrderNumber("")
+                    // setItems([])
                     setReturnDetails(null);
                    
 
@@ -388,7 +394,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                     
                         
                         <>
-                        <History collection={submitted} collectionName={'returns'} handleClick={handleClick} handleShowUnrefunded={(items)=> setUnrefunded(items)} />
+                        <History collection={submitted} collectionName={'returns'} handleClick={handleClick}  />
                             {/* {
                             unrefunded?
                              renderUnrefunded() : renderForm()
@@ -404,7 +410,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
 
                 
                 {selectedItem &&
-                    <Modal isOpened={isOpened} setIsOpened={setIsOpened} selectedProduct={selectedItem} products={items} setProducts={setItems}/>
+                    <Modal isOpened={isOpened} setIsOpened={setIsOpened} selectedProduct={selectedItem} products={returnForm.items} />
                 }
             </div>
         </div>
