@@ -2,32 +2,45 @@ import React, { useState,useEffect,useRef } from 'react';
 import History from '../components/products/History';
 import Modal from '../components/products/Modal';
 import {useNavigate} from "react-router-dom";
+import {RotatingLines} from 'react-loader-spinner'
+import {onClick } from '../utils/ApiUtils'
 
 export default function Returns({showReturnDetails,setReturnDetails}) {
     console.log(showReturnDetails,'showReturnDetails')
-    // const [trackingNumber, setTrackingNumber] = useState('eajearjryaj');
-    // const [orderNumber, setOrderNumber] = useState('aeTjaetj');
-    // const [items, setItems] = useState(['RGSD','ASRGRH','arehhae','aetjh','aetjrataj']);
+    
     const [trackingNumber, setTrackingNumber] = useState('');
     const [orderNumber, setOrderNumber] = useState('');
     const [items, setItems] = useState([]);
-    const [submitted, setSubmitted] = useState([]);
+    const [unrefunded, setUnrefunded] = useState(null);// i might not need this
+    const [submitted, setSubmitted] = useState(()=>{
+        const data = localStorage.getItem('returns');
+        return data ? JSON.parse(data) : [];
+    });
     const [returnForm, setReturnForm] = useState([]);
+    const [isShowingDetails,setIsShowingDetails] = useState(false);
     const [isOpened,setIsOpened] = useState(false);
     const [selectedItem,setSelectedItem] = useState(null);
-
+    const [isLoading,setIsLoading] = useState(false)
     const navigate = useNavigate();
+
     useEffect(()=>{
         if(showReturnDetails){
-            setReturnForm(showReturnDetails)
-            setTrackingNumber(showReturnDetails.trackingNumber)
-            setOrderNumber(showReturnDetails.orderNumber)
-            setItems(JSON.parse(showReturnDetails.items))
-            console.log(trackingNumber,orderNumber,items,'after clicking an item from search')
+
+            handleSetStates(showReturnDetails)
+            setIsShowingDetails(true);
+            // console.log(trackingNumber,orderNumber,items,'after clicking an item from search')
             // setIsShowingDetails(true)
         }
         console.log(showReturnDetails)
     },[showReturnDetails])
+
+    // useEffect(()=>{
+
+    // })
+    
+    useEffect(() => {
+        localStorage.setItem('returns', JSON.stringify(submitted));
+    }, [submitted]);
 
     const ENV = import.meta.env;
 
@@ -45,10 +58,21 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
         updatedItems.splice(index, 1);
         setItems(updatedItems);
     }
+    const handleSetStates = (returnToShow) =>{
+        const {trackingNumber,orderNumber,items} = returnToShow;
+        setReturnForm(returnToShow)
+        setTrackingNumber(trackingNumber)
+        setOrderNumber(orderNumber)
+            try{
+                setItems(JSON.parse(items))
+            } catch{
+                setItems(items)
+            }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(trackingNumber.length ===0 || !orderNumber.length===0 || items.length === 0){
+        if((trackingNumber.length === 0 && orderNumber.length === 0)){
             TrackingNumberRef.current.className = 'border-2 border-red-600  rounded-lg p-2';
             TrackingNumberRef.current.focus();
             return;
@@ -69,17 +93,18 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
         };
 
         setReturnForm({...returnForm,trackingNumber:trackingNumber,orderNumber:orderNumber,items:items,type:"return", });
-        
+        setIsLoading(true)
         try {
-            const method = showReturnDetails? 'update':'return';
+            const method = isShowingDetails? 'update':'return';
             const response = await fetch(`${ENV.VITE_API_URL}/${method}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(showReturnDetails?returnForm:formData)
+                body: JSON.stringify(isShowingDetails?returnForm:formData)
             });
             const data = await response.json();
+            setIsLoading(false)
             if(data.success){
                 setSubmitted([...submitted, formData]);
                 setTrackingNumber('');
@@ -89,6 +114,7 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
             }
 
         } catch (error) {
+            setIsLoading(false)
             console.error('Error submitting return:', error);
         }
     };
@@ -99,9 +125,12 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
         }
     };
     const handleClick = (ret) => {
-        
-        setSelectedItem(ret);
-        setIsOpened(true);
+        setIsShowingDetails(true);
+        handleSetStates(ret)
+        // setReturnDetails(ret)
+        // setSelectedItem(ret);
+
+        // setIsOpened(true);
         // console.log(product, "product clicked", products[product]);
     
     }
@@ -178,12 +207,23 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                             ref={ItemsRef}
                         />
                     </div>
+                    {
+                        isLoading ? 
+                            <RotatingLines
+                                strokeColor="grey"
+                                strokeWidth="5"
+                                animationDuration="0.75"
+                                width="15"
+                                visible={true}
+                            />
+                            :
 
-                    <button type={showReturnDetails? "submit":'hidden'} className={"mt-4 bg-blue-500 text-white py-2 px-4 rounded"}>Submit</button>
+                        <button type={showReturnDetails? "submit":'hidden'} className={"mt-4 bg-blue-500 text-white py-2 px-4 rounded"}>Submit</button>
+                    }
             </form>
         )
     }
-    const rendorViewDetails = () => {
+    const renderViewDetails = () => {
         return (
         <form onSubmit={handleSubmit} className="flex flex-col w-full h-full p-4">
 
@@ -298,26 +338,30 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
                   className="border-2 border-black rounded-lg p-2"
                   id="date"
                   value={
-                    showReturnDetails.refunded
-                      ? new Date(showReturnDetails.refunded_At).toISOString().split('T')[0]
+                    returnForm.refunded
+                      ? new Date(returnForm.refunded_At).toISOString().split('T')[0]
                       : ''
                   }
                   onChange={(e) => {
-                    
                     setReturnForm({ ...returnForm, refunded_At: new Date(e.target.value).toISOString() ,refunded:true});
-
                   }}
-                  disabled={!showReturnDetails.refunded}
+                  disabled={!returnForm.refunded}
                 />
               </div>
             </div>
           </div>
             <div className="flex flex-row">
                 <button type="submit" onClick={() => {
-                setReturnDetails(null);
-                navigate('/return');
-              }} 
-              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+                    setIsShowingDetails(false)
+                    setReturnForm(null)
+                    setTrackingNumber("")
+                    setOrderNumber("")
+                    setItems([])
+                    setReturnDetails(null);
+                   
+
+                }} 
+                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
               >
                   cancel
                 </button>
@@ -331,17 +375,29 @@ export default function Returns({showReturnDetails,setReturnDetails}) {
         );
     };
 
+
+    
+    // const renderUnrefunded = () => {
+        
+    // }
     return (
           <div className='flex flex-col w-full h-full bg-gray-200'>
             {/* <h1></h1> */}
             <div className='flex flex-row'>
                 {
-                    showReturnDetails? 
-                        rendorViewDetails() 
-                        :
+                    
+                        
                         <>
-                        <History collection={submitted} collectionName={'returns'} handleClick={handleClick} />
-                            {renderForm()}
+                        <History collection={submitted} collectionName={'returns'} handleClick={handleClick} handleShowUnrefunded={(items)=> setUnrefunded(items)} />
+                            {/* {
+                            unrefunded?
+                             renderUnrefunded() : renderForm()
+                             } */}
+                            {
+                                isShowingDetails ? 
+                                    renderViewDetails() :
+                                    renderForm()
+                            }
                         </>
                         
                 }
