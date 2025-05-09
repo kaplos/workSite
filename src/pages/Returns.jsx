@@ -55,7 +55,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
     setReturnForm({ ...returnForm, items: updatedItems });
   };
   const handleSetStates = (returnToShow) => {
-    const { items, ...rest } = showReturnDetails;
+    const { items, ...rest } = returnToShow;
 
     try {
       setReturnForm({ ...rest, items: JSON.parse(items), type: "return" });
