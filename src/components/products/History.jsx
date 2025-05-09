@@ -39,6 +39,7 @@ export default function History({collectionName,collection,handleDelete,handleCl
     })
     let data = await response.json();
     console.log(data, "data from server for unrefunded");
+
     setShowInformation(data);
     setButtonMode('unrefunded')
     // historyRef.current.textContent = " Unrefunded Returns"
@@ -96,7 +97,8 @@ return(
   
   <div className="flex flex-col w-full p-4 gap-2 overflow-y-auto h-full">
     {showInformation.length > 0 ? (
-      showInformation.map((item, index) => (
+      showInformation.sort((a, b) => new Date(b.create_at) - new Date(a.create_at))
+      .map((item, index) => (
         renderCard(item, index)
         // <ProductCard product={product} index={index} handleDelete={handleDelete} handleClick={handleClick}/>
       ))
