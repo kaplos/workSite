@@ -103,7 +103,8 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
       const data = await response.json();
       setIsLoading(false);
       if (data.success) {
-        setSubmitted([...submitted, returnForm]);
+
+        isShowingDetails? "":setSubmitted([...submitted, returnForm]);
         setReturnForm({
             created_At: "",
             items: [],
@@ -144,7 +145,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
 
   const renderForm = () => {
     return (
-      <form onSubmit={handleSubmit} className="flex flex-col w-full h-full p-4">
+      <form onSubmit={handleSubmit} id={'renderForm'} className="flex flex-col w-full h-full p-4">
         <div className="mb-4 flex flex-col">
           <label htmlFor="tracking-number">Return Tracking Number</label>
           <input
@@ -200,7 +201,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
           ) : null}
 
           <input
-            className={`${showReturnDetails ? "hidden" : ""} rounded-lg p-2`}
+            className={`rounded-lg p-2`}
             type={"text"}
             id="items"
             placeholder="Enter item"
@@ -254,7 +255,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
   };
   const renderViewDetails = () => {
     return (
-      <form onSubmit={handleSubmit} className="flex flex-col w-full h-full p-4">
+      <form onSubmit={handleSubmit} id={'renderViewDetails'} className="flex flex-col w-full h-full p-4">
         <div className="flex flex-col w-full h-full p-4">
           <div className="mb-4 flex flex-col">
             <label htmlFor="tracking-number">Return Tracking Number</label>
