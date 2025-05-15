@@ -104,7 +104,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
       setIsLoading(false);
       if (data.success) {
 
-        isShowingDetails? "":setSubmitted([...submitted, returnForm]);
+        isShowingDetails? "":setSubmitted([...submitted, {...returnForm,id:data.id}]);
         setReturnForm({
             created_At: "",
             items: [],
