@@ -54,6 +54,24 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
     updatedItems.splice(index, 1);
     setReturnForm({ ...returnForm, items: updatedItems });
   };
+  const  handleDelete = async (e, id) => {
+    e.preventDefault()
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${ENV.VITE_API_URL}/deleteReturn`, {
+        method: "Delete",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+      const data = await response.json();
+      setIsLoading(false);
+    }catch (error) {
+      setIsLoading(false);
+      console.error("Error deleting return:", error);
+    }
+  }
   const handleSetStates = (returnToShow) => {
     const { items, ...rest } = returnToShow;
 
@@ -411,36 +429,49 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
             </div>
           </div>
         </div>
-        <div className="flex flex-row gap-2">
-        <button
-            type=""
-            onClick={() => {
-                setIsShowingDetails(false);
-                setReturnForm({
-                    created_At: "",
-                    items: [],
-                    orderNumber: "",
-                    refunded: false,
-                    refunded_At: "",
-                    trackingNumber: "",
-                    type: "return",
-                  });
-                // setReturnDetails(null);
-              // handleSubmit('updateReturn')
-            }}
-            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
-          >
-            Cancel
-          </button>
+        <div className="flex flex-row gap-2 w-full justify-between">
+        <div className="flex gap-2">
           <button
-            type="submit"
-            onClick={(e) => {
-              handleSubmit(e)
-            }}
-            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
-          >
-            Submit
-          </button>
+              type=""
+              onClick={() => {
+                  setIsShowingDetails(false);
+                  setReturnForm({
+                      created_At: "",
+                      items: [],
+                      orderNumber: "",
+                      refunded: false,
+                      refunded_At: "",
+                      trackingNumber: "",
+                      type: "return",
+                    });
+                  // setReturnDetails(null);
+                // handleSubmit('updateReturn')
+              }}
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              onClick={(e) => {
+                handleSubmit(e)
+              }}
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Submit
+            </button>
+        </div>
+        <div>
+        <button
+              type="submit"
+              onClick={(e) => {
+                handleDelete(e, returnForm.id);
+              }}
+              className="mt-4 bg-red-500 text-white py-2 px-4 rounded"
+            >
+              Delete
+            </button>
+        </div>
           
         </div>
       </form>
