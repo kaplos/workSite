@@ -1,10 +1,10 @@
 
 
-export default function ReturnsCard({ret,layout, index, handleClick }) {
-    console.log(ret, "return in card");
+export default function ReturnsCard({ret,layout, index, handleClick,cardClicked }) {
+    // console.log(ret, "return in card");
     return(
         <div key={index} 
-            className='flex flex-row w-full justify-between p-4 border-2 border-black rounded-lg '
+            className={`flex flex-row w-full justify-between p-4 border-2 border-black rounded-lg ${cardClicked===ret.id? 'border-blue-500':'border-black'} `}
         >
                 <div
                     onClick={() => handleClick(ret)}

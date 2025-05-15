@@ -8,6 +8,7 @@ export default function History({collectionName,collection,handleDelete,handleCl
   const [isDisabled, setIsDisabled] = useState(collection.length===0);
   const [showInformation,setShowInformation] = useState([]);
   const [buttonMode,setButtonMode] = useState('default')
+  const [cardClicked, setCardClicked] = useState(false);
   // const historyRef = useRef(null);
   // const historyButtonRef = useRef(null);
   const handleAddProducts = async ()=>{
@@ -58,6 +59,12 @@ export default function History({collectionName,collection,handleDelete,handleCl
     console.log('Reverting unrefunded items...');
 
   }
+  const handleClickCard = (item) => {
+    setCardClicked(item.id);
+    // setCardClicked(item);
+    console.log(item, "item clicked");
+    handleClick(item);
+  }
 
   useEffect(()=>{
       setIsDisabled(collection.length===0);
@@ -68,9 +75,9 @@ export default function History({collectionName,collection,handleDelete,handleCl
 
     switch (collectionName) {
       case 'products':
-        return <ProductCard product={item} index={index} handleDelete={handleDelete} handleClick={handleClick} />;
+        return <ProductCard product={item} index={index} handleDelete={handleDelete} handleClick={handleClickCard} cardClicked={cardClicked}/>;
       case 'returns':
-        return <ReturnCard ret={item} index={index} handleDelete={handleDelete} handleClick={handleClick} />;
+        return <ReturnCard ret={item} index={index} handleDelete={handleDelete} handleClick={handleClickCard} cardClicked={cardClicked}/>;
       default:
         return null;
     }
