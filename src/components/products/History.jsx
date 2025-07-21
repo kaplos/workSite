@@ -9,6 +9,7 @@ export default function History({collectionName,collection,handleDelete,handleCl
   const [showInformation,setShowInformation] = useState([]);
   const [buttonMode,setButtonMode] = useState('default')
   const [cardClicked, setCardClicked] = useState(false);
+  const unrefunded = showInformation.length
   // const historyRef = useRef(null);
   // const historyButtonRef = useRef(null);
   const handleAddProducts = async ()=>{
@@ -43,6 +44,7 @@ export default function History({collectionName,collection,handleDelete,handleCl
 
     setShowInformation(data);
     setButtonMode('unrefunded')
+
     // historyRef.current.textContent = " Unrefunded Returns"
     // historyButtonRef.current.textContent = "Done"
     // historyButtonRef.current.onclick = handleRevertUnrefunded;
@@ -94,11 +96,16 @@ return(
       disabled={isDisabled}> Done
     </button>
     : 
+    <>
+      {buttonMode ==='Done'?
+        <span className="">Count: {unrefunded}</span>:null
+      }
       <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500`}
       onClick={buttonMode==='default' ? handleCheckUnRefunded : handleRevertUnrefunded }
       disabled={false}
       > {buttonMode==='default' ? 'Unrefunded' : 'Done'}
     </button>
+      </>
     }
   </div>
   

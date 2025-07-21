@@ -2,6 +2,8 @@ import React, { useState, useRef,useEffect } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import {RotatingLines} from 'react-loader-spinner'
+// import Jimp from 'jimp';
+const validImageTypes = ['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'gif'];
 
 const ItemType = "IMAGE";
 const ENV = import.meta.env;
