@@ -8,7 +8,7 @@ console.log(product, "product in card",cardClicked);
         className={`flex flex-row w-full justify-between p-4 border-2 rounded-lg ${cardClicked===product.id? 'border-blue-500':'border-black'} `}>
           <div
             onClick={() => handleClick(product)}
-            className="flex flex-col w-[85%] ">
+            className="flex flex-col p-2 ">
               <h1>Sku:</h1>
               <h1>{product.sku}</h1>
               <h1></h1>

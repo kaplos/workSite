@@ -4,10 +4,11 @@ import Modal from "../components/products/Modal";
 import { useNavigate } from "react-router-dom";
 import { RotatingLines } from "react-loader-spinner";
 import { onClick } from "../utils/ApiUtils";
+import { useMessage } from "../components/Messages/MessageContext";
 
 export default function Returns({ showReturnDetails, setReturnDetails }) {
   console.log(showReturnDetails, "showReturnDetails");
-
+  const {showMessage} = useMessage()
   const [submitted, setSubmitted] = useState(() => {
     const data = localStorage.getItem("returns");
     return data ? JSON.parse(data) : [];
@@ -83,6 +84,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     if (
       returnForm.trackingNumber.length === 0 &&
@@ -111,6 +113,7 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
     setIsLoading(true);
     try {
       const method = isShowingDetails ? "update" : "return";
+    
       const response = await fetch(`${ENV.VITE_API_URL}/${method}`, {
         method: "POST",
         headers: {
@@ -118,29 +121,38 @@ export default function Returns({ showReturnDetails, setReturnDetails }) {
         },
         body: JSON.stringify(returnForm),
       });
+    
       const data = await response.json();
       setIsLoading(false);
+    
       if (data.success) {
-
-        isShowingDetails? "":setSubmitted([...submitted, {...returnForm,id:data.id}]);
+        showMessage('Successfully Submitted Return')
+        if (!isShowingDetails) {
+          setSubmitted([...submitted, { ...returnForm, id: data.id }]);
+        }
+    
         setReturnForm({
-            created_At: "",
-            items: [],
-            orderNumber: "",
-            refunded: false,
-            refunded_At: "",
-            trackingNumber: "",
-            type: "return",
-          })
-
-          isShowingDetails ? setIsShowingDetails(false):''
-        TrackingNumberRef.current.focus();
+          created_At: "",
+          items: [],
+          orderNumber: "",
+          refunded: false,
+          refunded_At: "",
+          trackingNumber: "",
+          type: "return",
+        });
+    
+        if (isShowingDetails) {
+          setIsShowingDetails(false);
+        }
+    
+        TrackingNumberRef.current?.focus();
       }
-
     } catch (error) {
       setIsLoading(false);
+      showMessage("Something went wrong while submitting the return.");
       console.error("Error submitting return:", error);
     }
+    
   };
   const handleKeyPress = (e, nextRef) => {
     if (e.key === "Enter") {

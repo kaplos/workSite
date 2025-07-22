@@ -6,6 +6,8 @@ import NavBar from './components/NavBar';
 import { BrowserRouter, Routes, Route ,useLocation,useNavigate} from "react-router-dom";
 import './App.css'
 import { Navigate } from "react-router-dom";
+import { MessageProvider } from './components/Messages/MessageContext';
+import MessageBox from './components/Messages/MessageBox';
 function App() {
   
   let [tab, setTab] = useState('upload');
@@ -44,7 +46,8 @@ const onClick =async(id,type)=>{
     }
   }
   return (
-    <div className="w-full h-full flex flex-col bg-gray-200">
+   
+   <div className="w-full h-full flex flex-col bg-gray-200">
       <NavBar tab={tab} setTab={setTab} handleSearch={handleSearch} handleClick={onClick}/>
       <div className='w-full h-full'>
         <Routes >
@@ -61,9 +64,12 @@ const onClick =async(id,type)=>{
 
 export default function AppWrapper() {
   return (
+    <MessageProvider>
+        <MessageBox/>
     <BrowserRouter>
       <App />
     </BrowserRouter>
+    </MessageProvider>
   );
 }
 

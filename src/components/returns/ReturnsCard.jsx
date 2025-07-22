@@ -8,7 +8,7 @@ export default function ReturnsCard({ret,layout, index, handleClick,cardClicked 
         >
                 <div
                     onClick={() => handleClick(ret)}
-                    className="flex flex-col w-[85%] "
+                    className="flex flex-col p-4 "
                 >
                     <h1>Order Number:</h1>
                     <h1>{ret.orderNumber}</h1>

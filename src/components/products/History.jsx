@@ -2,19 +2,23 @@ const ENV = import.meta.env;
 import {useEffect, useState,useRef} from 'react';
 import ProductCard from './ProductCard';
 import ReturnCard from '../returns/ReturnsCard';
+import { useMessage } from '../Messages/MessageContext';
 
 export default function History({collectionName,collection,handleDelete,handleClick}) {
   console.log(collection ,'products in history');  
   const [isDisabled, setIsDisabled] = useState(collection.length===0);
   const [showInformation,setShowInformation] = useState([]);
-  const [buttonMode,setButtonMode] = useState('default')
+  const [buttonMode,setButtonMode] = useState('default');
   const [cardClicked, setCardClicked] = useState(false);
   const unrefunded = showInformation.length
+  const {showMessage} = useMessage()
+  console.log(unrefunded,'unrefunded amount')
   // const historyRef = useRef(null);
   // const historyButtonRef = useRef(null);
   const handleAddProducts = async ()=>{
     console.log('request send ' ,localStorage.getItem('products'));
-    let response = await fetch(`${ENV.VITE_API_URL}/addProducts`,{
+    try{
+      let response = await fetch(`${ENV.VITE_API_URL}/addProducts`,{
       method:"POST",
       headers:{
         'Content-Type': 'application/json',
@@ -26,13 +30,21 @@ export default function History({collectionName,collection,handleDelete,handleCl
     if(data.success){
       localStorage.setItem('products',JSON.stringify([]));
       window.location.reload();
+
     }
+  }catch(error){
+    console.error(error,'failed to add products')
+    showMessage(error)
+  }
   }
   const handleCheckUnRefunded = async() =>{
     // if(buttonMode==='unrefunded'){
     //   handleCheckUnRefunded();
     //   return;
     // }
+    try{
+
+
     let response = await fetch(`${ENV.VITE_API_URL}/getUnrefunded`,{
       method:"GET",
       headers:{
@@ -44,6 +56,10 @@ export default function History({collectionName,collection,handleDelete,handleCl
 
     setShowInformation(data);
     setButtonMode('unrefunded')
+  }catch(error){
+    console.error('error fetching Unrefundeds',error)
+    showMessage('Something Went Wrong Fetching Unrefundeds')
+  }
 
     // historyRef.current.textContent = " Unrefunded Returns"
     // historyButtonRef.current.textContent = "Done"
@@ -84,30 +100,31 @@ export default function History({collectionName,collection,handleDelete,handleCl
         return null;
     }
   };
+
 return( 
 
-  <div className='w-72 h-screen border-r-2 border-black flex flex-col gap-2'>
-  <div className='flex flex-row w-full justify-between items-center p-4 border-b-2 border-gray-300'>
-    <h1 className="font-bold text-lg " >{buttonMode==='default' ? 'History' : 'Unrefunded Returns'}</h1>
-    {collectionName=='products' ?
-
-      <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500 ${isDisabled ? 'opacity-50' : 'bg-blue-500'}`}
-      onClick={ handleAddProducts }
-      disabled={isDisabled}> Done
-    </button>
-    : 
-    <>
-      {buttonMode ==='Done'?
-        <span className="">Count: {unrefunded}</span>:null
-      }
-      <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500`}
-      onClick={buttonMode==='default' ? handleCheckUnRefunded : handleRevertUnrefunded }
-      disabled={false}
-      > {buttonMode==='default' ? 'Unrefunded' : 'Done'}
-    </button>
-      </>
+  <div className='w-auto h-screen border-r-2 border-black flex flex-col gap-2'>
+    <div className='flex flex-col w-full justify-between items-end p-4 border-b-2 border-gray-300 '>
+      <div className='flex flex-row gap-2 items-center '>
+        <h1 className="font-bold text-lg " >{buttonMode==='default' ? 'History' : 'Unrefunded Returns'}</h1>
+        {collectionName=='products' ?
+          <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500 ${isDisabled ? 'opacity-50' : 'bg-blue-500'}`}
+          onClick={ handleAddProducts }
+          disabled={isDisabled}> Done
+        </button>
+        :
+          <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500`}
+          onClick={buttonMode==='default' ? handleCheckUnRefunded : handleRevertUnrefunded }
+          disabled={false}
+          > {buttonMode==='default' ? 'Unrefunded' : 'Done'}
+        </button>
+        }
+      </div>
+    
+    {buttonMode ==='done'?
+      <span className="justify-self-end">Total: {unrefunded}</span>:null
     }
-  </div>
+    </div>
   
   <div className="flex flex-col w-full p-4 gap-2 overflow-y-auto h-full">
     {showInformation.length > 0 ? (
@@ -121,5 +138,5 @@ return(
     )}
   </div>
 </div>
-)
+  )
 }
