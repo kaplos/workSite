@@ -2,8 +2,9 @@ import React, { useState, useRef,useEffect } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import {RotatingLines} from 'react-loader-spinner'
+// import { randomUUID } from 'crypto'
+import ImageUpload from "./ImageUpload";
 // import Jimp from 'jimp';
-const validImageTypes = ['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'gif'];
 
 const ItemType = "IMAGE";
 const ENV = import.meta.env;
@@ -45,6 +46,7 @@ function DraggableImage({ image, index, moveImage, deleteImage }) {
 }
 
 export default function Form({setProducts,products,showUploadDetails}) {
+
   const [isDragging, setIsDragging] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isRequired,setIsRequired] = useState(true);
@@ -122,14 +124,8 @@ useEffect(()=>{
   const qtyInputRef = useRef(null);
   const widthInputRef = useRef(null);
 
-  const handleDragOver =(e)=>{
-    e.preventDefault()
-  }
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    handleImageChange(files);
-  };
+  
+
 
 
 
@@ -146,45 +142,6 @@ useEffect(()=>{
       setExists(product.sku === values.sku)
     })
   }
-
-
-
-
-
-  const handleImageChange = async(e) => {
-    console.log(e, "files");
-    e.preventDefault();
-    const eventFiles = e.type === "drop" ? Array.from(e.dataTransfer.files) : Array.from(e.target.files);
-    setLoadingImages(eventFiles.length);
-    console.log(eventFiles, "files");
-
-    const formData = new FormData();
-
-
-    const newImages = eventFiles.map((file) => (
-      formData.append("images", file,file.name),
-      {
-        url: URL.createObjectURL(file),
-      }
-    ));
-
-    const response = await fetch(`${ENV.VITE_API_URL}/upload`,{
-      method:"POST",
-      body: formData
-    })
-
-    const data = await response.json()
-    console.log(data,'response from server');
-
-
-    console.log(newImages, "newImages");
-    setLoadingImages(0)
-    setSelectedImages((prevImages) => {
-      const updatedImages = [...prevImages, ...data.images];
-      console.log(updatedImages, "updatedImages"); // Log the updated state here
-      return updatedImages;
-    });
-  };
 
   const moveImage = (fromIndex, toIndex) => {
     const updatedImages = [...selectedImages];
@@ -204,9 +161,8 @@ useEffect(()=>{
     const value = event.target.value;
     setValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
-  function getFileExtension(file){
-    return file.name.split('.').pop().toLowerCase();
-  }
+
+  
 
   const onSubmit = async(e) => {
     e.preventDefault();
@@ -275,33 +231,7 @@ useEffect(()=>{
             />
           </div>
           
-            <div
-              className="border-2 border-dashed border-black p-4 cursor-pointer m-4 rounded-lg" 
-              onDragOver={handleDragOver}
-              onDrop={handleImageChange}
-              onClick={() => fileInputRef.current.click()}
-            >
-              <div className="flex flex-col">
-                <div className="flex flex-row">
-                  <label htmlFor="images">Images </label>
-                  <span className="text-red-700 pl-1 text-lg">*</span>
-
-                </div>
-                <p className="text-gray-700 text-sm font-medium mt-2">Choose a file or drag and drop it here</p>
-              </div>
-              <input
-                required={isRequired}
-                type="file"
-                accept="image/*"
-                multiple
-                ref={fileInputRef}
-                name="images"
-                id="images"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-
-            </div>
+          <ImageUpload  fileInputRef={fileInputRef} isRequired={isRequired} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages}/>
           
           <div className="flex flex-wrap mt-4">
             {selectedImages &&
@@ -309,7 +239,7 @@ useEffect(()=>{
               <DraggableImage
                 key={index}
                 index={index}
-                image={image}
+                image={image.image}
                 moveImage={moveImage}
                 deleteImage={deleteImage}
               />
