@@ -39,6 +39,13 @@ const handleImageChange = async(e) => {
     const watermarkImages = await Promise.all(eventFiles.map(file => {
         return addWatermarkContrastCanvas(file, watermarkRef.current);
     }));
+    if(process.env.NODE_ENV === 'development'){
+        const url = URL.createObjectURL(watermarkImages[0]);
+        console.log(url, "watermarked image URL");
+            window.open(url, '_blank'); // Opens the image in a new tab
+            return
+    }
+
 //     watermarkImages.forEach((blob, i) => {
 //   const url = URL.createObjectURL(blob);
 //   console.log(`Watermarked image ${i}:`, url);
@@ -76,53 +83,39 @@ const handleImageChange = async(e) => {
     });
   };
 
-  async function addWatermarkContrastCanvas(inputFile, watermarkUrl, position = 'center') {
+ async function addWatermarkContrastCanvas(inputFile, watermarkUrl, position = 'center') {
   const loadImage = (src) =>
     new Promise((resolve, reject) => {
-      const img = new window.Image();
+      const img = new Image();
       img.crossOrigin = 'Anonymous';
       img.onload = () => resolve(img);
       img.onerror = reject;
       img.src = src;
     });
 
-  // Load main image and watermark image as <img>
+  // Load images
   const mainImg = await loadImage(URL.createObjectURL(inputFile));
   const watermarkImg = await loadImage(watermarkUrl);
 
-  // Prepare canvases
+  // Prepare canvas for main image
   const canvas = document.createElement('canvas');
   canvas.width = mainImg.width;
   canvas.height = mainImg.height;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(mainImg, 0, 0);
 
-  // Resize watermark to fit main image width (adjust factor as needed)
-  const factor = 1; // matches your Jimp logic
-  const wWidth = mainImg.width * factor;
+  // Resize watermark (e.g., 30% width of main image)
+  const wWidth = mainImg.width * 1;
   const scale = wWidth / watermarkImg.width;
   const wHeight = watermarkImg.height * scale;
 
-  // Draw watermark on temp canvas for pixel manipulation
-  const wmCanvas = document.createElement('canvas');
-  wmCanvas.width = wWidth;
-  wmCanvas.height = wHeight;
-  const wmCtx = wmCanvas.getContext('2d');
-  wmCtx.drawImage(watermarkImg, 0, 0, wWidth, wHeight);
-
-  // Contrast logic
-  const wmImageData = wmCtx.getImageData(0, 0, wWidth, wHeight);
-  const wmData = wmImageData.data;
-  const mainImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const mainData = mainImageData.data;
-
-  // Calculate position
+  // Positioning
   const margin = 20;
   let x = 0, y = 0;
   switch (position) {
-    case 'top-left': x = margin; y = margin; break;
-    case 'top-right': x = canvas.width - wWidth - margin; y = margin; break;
-    case 'bottom-left': x = margin; y = canvas.height - wHeight - margin; break;
+    case 'top-left':     x = margin; y = margin; break;
+    case 'top-right':    x = canvas.width - wWidth - margin; y = margin; break;
+    case 'bottom-left':  x = margin; y = canvas.height - wHeight - margin; break;
     case 'bottom-right': x = canvas.width - wWidth - margin; y = canvas.height - wHeight - margin; break;
     case 'center':
     default:
@@ -131,38 +124,49 @@ const handleImageChange = async(e) => {
       break;
   }
 
-  // Per-pixel contrast-adjusted color for watermark
+  // Temp canvas for watermark
+  const wmCanvas = document.createElement('canvas');
+  wmCanvas.width = wWidth;
+  wmCanvas.height = wHeight;
+  const wmCtx = wmCanvas.getContext('2d');
+  wmCtx.drawImage(watermarkImg, 0, 0, wWidth, wHeight);
+
+  // Extract pixel data
+  const wmImageData = wmCtx.getImageData(0, 0, wWidth, wHeight);
+  const wmData = wmImageData.data;
+  const mainData = ctx.getImageData(x, y, wWidth, wHeight).data;
+
+  // === Per-pixel contrast adjustment ===
   for (let wy = 0; wy < wHeight; wy++) {
     for (let wx = 0; wx < wWidth; wx++) {
-      const wIdx = (wy * wWidth + wx) * 4;
-      const alpha = wmData[wIdx + 3];
-      if (alpha !== 0) {
-        const mx = Math.min(canvas.width - 1, Math.max(0, wx + x));
-        const my = Math.min(canvas.height - 1, Math.max(0, wy + y));
-        const mIdx = (my * canvas.width + mx) * 4;
-        const r = mainData[mIdx + 0];
-        const g = mainData[mIdx + 1];
-        const b = mainData[mIdx + 2];
+      const idx = (wy * wWidth + wx) * 4;
+      const alpha = wmData[idx + 3];
+      if (alpha > 0) {
+        const r = mainData[idx + 0];
+        const g = mainData[idx + 1];
+        const b = mainData[idx + 2];
         const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        const contrastColor = brightness > 0.5 ? 0 : 255;
-        wmData[wIdx + 0] = contrastColor;
-        wmData[wIdx + 1] = contrastColor;
-        wmData[wIdx + 2] = contrastColor;
-        // Alpha as is
+
+        const contrastColor = brightness > 0.5 ? 0 : 255; // black if bright, white if dark
+        wmData[idx + 0] = contrastColor;
+        wmData[idx + 1] = contrastColor;
+        wmData[idx + 2] = contrastColor;
+        // alpha stays the same
       }
     }
   }
+
   wmCtx.putImageData(wmImageData, 0, 0);
 
-  // Paint watermark on main canvas
-  ctx.globalAlpha = 1;
+  // Draw adjusted watermark on main image
   ctx.drawImage(wmCanvas, x, y);
 
-  // Return as Blob (for upload)
+  // Return result blob
   return new Promise((resolve) => {
     canvas.toBlob(resolve, "image/jpeg", 0.95);
   });
 }
+
 
 
 const handleDragOver =(e)=>{
