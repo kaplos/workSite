@@ -58,7 +58,7 @@ export default function Form({setProducts,products,showUploadDetails}) {
     sku: "",
     notes: "",
     images: [],
-    qty:1,
+    // qty:1,
     width:3.5
   });
  
@@ -210,10 +210,10 @@ useEffect(()=>{
             />
           </div>
           <div className={`flex flex-row w-full gap-2 p-4 ${isTie ?  "visible": "hidden" }`}> 
-                <div className="flex flex-col  w-full">
+                {/* <div className="flex flex-col  w-full">
                   <div className="flex flex-row"><label htmlFor="qty">Qty:</label>  <span className="text-red-700 pl-1 text-lg">*</span></div>
                   <input type="number" name='qty' required={isTie} onChange={handleChange} ref={qtyInputRef} value={values.qty}  className="border-2 border-black rounded-lg flex-1 p-2"/>
-                </div>
+                </div> */}
                 <div className="flex flex-col  w-full">
                   <div className="flex flex-row"><label htmlFor="width">Width:</label> <span className="text-red-700 pl-1 text-lg">*</span></div>
                   <input type="" name='width' required={isTie} ref={widthInputRef} onChange={handleChange} value={values.width} step="any" className="border-2 border-black rounded-lg p-2"/>

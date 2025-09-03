@@ -193,7 +193,7 @@ export default function ModalForm({
               isTie ? "visible" : "hidden"
             }`}
           >
-            <div className="flex flex-col w-full">
+            {/* <div className="flex flex-col w-full">
               <label htmlFor="qty">Qty:</label>
               <input
                 type="number"
@@ -204,7 +204,7 @@ export default function ModalForm({
                 value={values.qty}
                 className=" border-2 border-black rounded-lg p-2 "
               />
-            </div>
+            </div> */}
             <div className="flex flex-col w-full">
               <label htmlFor="width">Width:</label>
               <input
