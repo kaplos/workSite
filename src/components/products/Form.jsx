@@ -213,7 +213,7 @@ useEffect(()=>{
                 {/* <div className="flex flex-col  w-full">
                   <div className="flex flex-row"><label htmlFor="qty">Qty:</label>  <span className="text-red-700 pl-1 text-lg">*</span></div>
                   <input type="number" name='qty' required={isTie} onChange={handleChange} ref={qtyInputRef} value={values.qty}  className="border-2 border-black rounded-lg flex-1 p-2"/>
-                </div> */}
+                  </div> */}
                 <div className="flex flex-col  w-full">
                   <div className="flex flex-row"><label htmlFor="width">Width:</label> <span className="text-red-700 pl-1 text-lg">*</span></div>
                   <input type="" name='width' required={isTie} ref={widthInputRef} onChange={handleChange} value={values.width} step="any" className="border-2 border-black rounded-lg p-2"/>
@@ -228,10 +228,13 @@ useEffect(()=>{
               value={values.notes}
               onChange={handleChange}
               className="border-2 border-black rounded-lg p-2"
-            />
+              />
           </div>
           
-          <ImageUpload  fileInputRef={fileInputRef} isRequired={isRequired} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages}/>
+              {values.sku.length > 0 ? 
+              <ImageUpload  fileInputRef={fileInputRef} isRequired={isRequired} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages} sku={values.sku}/>
+              : <span className="p-4 text-red-700">Enter SKU to upload images</span>
+              }
           
           <div className="flex flex-wrap mt-4">
             {selectedImages &&

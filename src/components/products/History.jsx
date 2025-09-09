@@ -25,6 +25,7 @@ export default function History({collectionName,collection,handleDelete,handleCl
       },
       body: localStorage.getItem('products'),
     })
+    
     let data = await response.json();
     console.log(data, "data from server in history");
     if(data.success){

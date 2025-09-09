@@ -178,6 +178,7 @@ export default function ModalForm({
               required
               type="text"
               name="sku"
+              disabled={true} // disabling so we dont need to check if it changed in the back end
               id="sku"
               onChange={(e) => setNewSku(e.target.value)}
               onBlur={handleSkuCheck}
@@ -230,7 +231,7 @@ export default function ModalForm({
               className="border-2 border-black rounded-lg p-2"
             />
           </div>
-           <ImageUpload  fileInputRef={fileInputRef} isRequired={false} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages}/>
+           <ImageUpload  fileInputRef={fileInputRef} isRequired={false} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages} />
           
           <div className="flex flex-wrap mt-4 pl-2">
             {selectedImages &&
