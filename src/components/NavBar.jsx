@@ -95,22 +95,22 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
   );
 
   return (
-    <div className="border-b-2 border-gray-300">
-      <nav className="border-gray-200 px-2 mb-2">
+    <div className="bg-white shadow-md border-b border-gray-200">
+      <nav className="px-4 py-3">
         <div className="container mx-auto flex flex-wrap items-center justify-between">
           
           <div
             className=" flex flex-row justify-between items-center w-full "
           >
-            <ul className="flex-row flex md:space-x-8 mt-4 md:mt-0 md:text-sm md:font-medium">
+            <ul className="flex-row flex md:space-x-8 mt-0 md:text-sm md:font-medium">
               <li>
                 <a
                   href="upload"
                   onClick={handleTabSwitch}
-                  className={`text-gray-700 hover:bg-gray-50 border-b border-gray-100 md:hover:bg-transparent md:border-0 block pl-3 pr-4 py-2 md:hover:text-blue-700 md:p-0  ${
+                  className={`text-gray-700 hover:text-blue-600 border-b-2 block px-4 py-3 transition-all duration-200 font-medium ${
                     tab === "upload"
-                      ? "underline decoration-cyan-600 decoration-2 underline-offset-8"
-                      : ""
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent hover:border-gray-300"
                   }`}
                   aria-current="page"
                 >
@@ -121,10 +121,10 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                 <a
                   href="return"
                   onClick={handleTabSwitch}
-                  className={`text-gray-700 hover:bg-gray-50 border-b border-gray-100 md:hover:bg-transparent md:border-0 block pl-3 pr-4 py-2 md:hover:text-blue-700 md:p-0 ${
+                  className={`text-gray-700 hover:text-blue-600 border-b-2 block px-4 py-3 transition-all duration-200 font-medium ${
                     tab === "return"
-                      ? "underline decoration-cyan-600 decoration-2 underline-offset-8"
-                      : ""
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent hover:border-gray-300"
                   }`}
                 >
                   Returns
@@ -132,10 +132,10 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
               </li>
             </ul>
             <div className="flex md:order-2">
-            <div className="relative mr-3 md:mr-0  ">
+            <div className="relative mr-3 md:mr-0">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
-                  className="w-5 h-5 text-gray-500"
+                  className="w-5 h-5 text-gray-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -154,7 +154,7 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                 onChange={handleInputChange}
                 type="text"
                 id="email-adress-icon"
-                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent block w-full pl-10 pr-4 py-3 transition-all duration-200 hover:border-gray-400"
                 placeholder="Search..."
               />
               {loading && (
@@ -185,11 +185,11 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
               {searchResults ?(
                 <div
                   ref={searchResultsRef}
-                  className={`absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 ${shown? '':'hidden'}`}
+                  className={`absolute z-10 w-full bg-white border border-gray-200 rounded-xl mt-2 shadow-lg ${shown? '':'hidden'}`}
                 >
                   
                   { 
-                    <ul>
+                    <ul className="py-2">
                       {searchResults.map((result, index) => {
                         console.log(result, "Current result in map"); 
                         // Debugging each result
@@ -198,10 +198,10 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                         return (
                           <li
                             key={index}
-                            className=" hover:bg-gray-100 cursor-pointer"
+                            className="hover:bg-gray-50 cursor-pointer transition-colors duration-150"
                             onClick={() => { handleClick(result.id,type); setShown(false) }}
                           >
-                            <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full hover:bg-gray-100">
+                            <div className="px-4 py-3 border-b border-gray-100 last:border-b-0">
                               {renderCard(result)}
                             </div>
                           </li>
@@ -211,7 +211,7 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
                   }
                 </div>
               ) : (
-                <div className="px-2 py-1 border rounded-lg shadow-md bg-white w-full hover:bg-gray-100">
+                <div className="px-4 py-3 bg-white rounded-xl shadow-md border border-gray-200 mt-2">
                   {defaultCard(message)}
                 </div>
               )}

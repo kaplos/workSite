@@ -36,9 +36,9 @@ export default function Products({showUploadDetails,SetUploadDetails}) {
      
     
       return (
-        <div className='flex flex-col w-full'> 
+        <div className='flex flex-col w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'> 
 
-          <div className='flex flex-row w-full h-full bg-gray-200'>
+          <div className='flex flex-col md:flex-row w-full h-full'>
             <History collection={products} collectionName={'products'} handleDelete={handleDelete} handleClick={handleClick} />
             <Form setProducts={setProducts} products={products} showUploadDetails={showUploadDetails}/>
             {selectedProduct &&

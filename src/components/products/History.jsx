@@ -104,17 +104,17 @@ export default function History({collectionName,collection,handleDelete,handleCl
 
 return( 
 
-  <div className='w-auto h-screen border-r-2 border-black flex flex-col gap-2'>
-    <div className='flex flex-col w-full justify-between items-end p-4 border-b-2 border-gray-300 '>
-      <div className='flex flex-row gap-2 items-center '>
-        <h1 className="font-bold text-lg " >{buttonMode==='default' ? 'History' : 'Unrefunded Returns'}</h1>
+  <div className='w-full md:w-80 h-auto md:h-screen bg-white shadow-lg flex flex-col border-b md:border-b-0 md:border-r border-gray-200'>
+    <div className='flex flex-col w-full justify-between p-4 md:p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100'>
+      <div className='flex flex-row gap-3 items-center justify-between'>
+        <h1 className="font-bold text-base md:text-lg text-gray-800" >{buttonMode==='default' ? 'History' : 'Unrefunded Returns'}</h1>
         {collectionName=='products' ?
-          <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500 ${isDisabled ? 'opacity-50' : 'bg-blue-500'}`}
+          <button className={`px-3 md:px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm md:text-base ${isDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white hover:shadow-md'}`}
           onClick={ handleAddProducts }
           disabled={isDisabled}> Done
         </button>
         :
-          <button className={`border-2 border-blue-500 p-2 rounded-lg bg-blue-500`}
+          <button className={`px-3 md:px-4 py-2 rounded-lg font-semibold bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 hover:shadow-md text-sm md:text-base`}
           onClick={buttonMode==='default' ? handleCheckUnRefunded : handleRevertUnrefunded }
           disabled={false}
           > {buttonMode==='default' ? 'Unrefunded' : 'Done'}
@@ -123,11 +123,11 @@ return(
       </div>
     
     {buttonMode ==='done'?
-      <span className="justify-self-end">Total: {unrefunded}</span>:null
+      <span className="text-sm text-gray-600 mt-2">Total: {unrefunded}</span>:null
     }
     </div>
   
-  <div className="flex flex-col w-full p-4 gap-2 overflow-y-auto h-full">
+  <div className="flex flex-col w-full p-3 md:p-4 gap-3 overflow-y-auto h-48 md:h-full bg-gray-50">
     {showInformation.length > 0 ? (
       showInformation.sort((a, b) => new Date(b.create_at) - new Date(a.create_at))
       .map((item, index) => (
@@ -135,7 +135,14 @@ return(
         // <ProductCard product={product} index={index} handleDelete={handleDelete} handleClick={handleClick}/>
       ))
     ) : (
-      <p>{`No ${collectionName} available`}</p>
+      <div className="text-center py-6 md:py-8">
+        <div className="mx-auto w-12 md:w-16 h-12 md:h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3 md:mb-4">
+          <svg className="w-6 md:w-8 h-6 md:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <p className="text-gray-500 font-medium text-sm md:text-base">{`No ${collectionName} available`}</p>
+      </div>
     )}
   </div>
 </div>

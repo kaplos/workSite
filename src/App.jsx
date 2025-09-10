@@ -47,7 +47,7 @@ const onClick =async(id,type)=>{
   }
   return (
    
-   <div className="w-full h-full flex flex-col bg-gray-200">
+   <div className="w-full h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100">
       <NavBar tab={tab} setTab={setTab} handleSearch={handleSearch} handleClick={onClick}/>
       <div className='w-full h-full'>
         <Routes >

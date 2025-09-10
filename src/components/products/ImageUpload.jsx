@@ -204,18 +204,25 @@ const handleDrop = (e) => {
     
     return(
         <div
-              className="border-2 border-dashed border-black p-4 cursor-pointer m-4 rounded-lg" 
+              className="border-2 border-dashed border-blue-300 hover:border-blue-400 bg-blue-50 hover:bg-blue-100 p-8 cursor-pointer rounded-xl transition-all duration-200 group" 
               onDragOver={handleDragOver}
               onDrop={handleImageChange}
               onClick={() => fileInputRef.current.click()}
             >
-              <div className="flex flex-col">
-                <div className="flex flex-row">
-                  <label htmlFor="images">Images </label>
-                  <span className="text-red-700 pl-1 text-lg">*</span>
-
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-4 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors duration-200">
+                  <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
                 </div>
-                <p className="text-gray-700 text-sm font-medium mt-2">Choose a file or drag and drop it here</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 justify-center">
+                    <label htmlFor="images" className="text-lg font-semibold text-gray-700">Images</label>
+                    <span className="text-red-500 text-sm">*</span>
+                  </div>
+                  <p className="text-gray-600 text-sm">Choose files or drag and drop them here</p>
+                  <p className="text-gray-400 text-xs">PNG, JPG, GIF up to 10MB each</p>
+                </div>
               </div>
               <input
                 required={isRequired}
