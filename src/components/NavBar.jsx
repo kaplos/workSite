@@ -9,6 +9,7 @@ export default function NavBar({ tab, setTab, handleSearch, handleClick }) {
   const [type, setType] = useState("");
   const [message, setMessage] = useState("");
   const [shown,setShown] = useState(false)
+  const [showMenu, setShowMenu] = useState(false);
   const {showMessage} = useMessage()
 
   const searchResultsRef = useRef();

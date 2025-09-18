@@ -73,10 +73,12 @@ export default function ModalForm({
   }, [isOpened]);
   useEffect(() => {
     if (value) {
-      setValues(value);
-      setNewSku(value.sku);
-      setSelectedImages(value.images);
-      values.sku.length > 0 && values.sku.toLowerCase().includes("tie")
+      const {images,...rest} = value;
+      console.log(rest, "rest");
+      setValues(rest);
+      setNewSku(rest.sku);
+      setSelectedImages(images || []);
+      rest.sku.length > 0 && rest.sku.toLowerCase().includes("tie")
         ? setIsTie(true)
         : setIsTie(false);
     }
@@ -130,6 +132,9 @@ export default function ModalForm({
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
+    if (name === "sku") {
+      setExists(false);
+    }
     setValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
@@ -178,15 +183,16 @@ export default function ModalForm({
               required
               type="text"
               name="sku"
-              disabled={true} // disabling so we dont need to check if it changed in the back end
               id="sku"
               onChange={(e) => setNewSku(e.target.value)}
               onBlur={handleSkuCheck}
-              value={newSku.length === 0 ? values.sku : newSku}
+              value={newSku}
               className={`border-2 border-black rounded-lg p-2 ${
                 exists ? "border-red-700 border-4" : ""
               }`}
             />
+            <span className="text-red-700">{exists? 'SKU already exists choose another sku': ''}</span>
+            
           </div>
           {/* <ImageUpload handleSkuCheck={handleSkuCheck} setNewSku={setNewSku} newSku={newSku} exists={exists} values={values} /> */}
           <div
@@ -231,7 +237,7 @@ export default function ModalForm({
               className="border-2 border-black rounded-lg p-2"
             />
           </div>
-           <ImageUpload  fileInputRef={fileInputRef} isRequired={false} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages} />
+           <ImageUpload  fileInputRef={fileInputRef} isRequired={false} loadingImage={loadingImage} setSelectedImages={setSelectedImages} values={values} setLoadingImages={setLoadingImages} />
           
           <div className="flex flex-wrap mt-4 pl-2">
             {selectedImages &&
@@ -259,7 +265,8 @@ export default function ModalForm({
           <div className="flex flex-col w-full p-2">
             <button
               type="submit"
-              className="border-2 border-black rounded-lg p-2 bg-green-500"
+              className={`border-2 border-black rounded-lg p-2 bg-green-500 ${exists ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={exists}
             >
               Submit
             </button>

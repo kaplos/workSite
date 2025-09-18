@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 
-export  default function ImageUpload({fileInputRef,isRequired, setSelectedImages, selectedImages, setLoadingImages,loadingImages,sku}){
+export  default function ImageUpload({fileInputRef,isRequired, setSelectedImages, selectedImages, setLoadingImages,loadingImages,values,onUpload}){
 const validImageTypes = ['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'gif'];
 const ENV = import.meta.env;
 
@@ -44,65 +44,69 @@ const handleImageChange = async(e) => {
     const eventFiles = e.type === "drop" ? Array.from(e.dataTransfer.files) : Array.from(e.target.files);
     setLoadingImages(eventFiles.length);
     console.log(eventFiles, "files");
-
+    
     const watermarkImages = await Promise.all(eventFiles.map(file => {
-        return addWatermarkContrastCanvas(file, watermarkRef.current);
+      return addWatermarkContrastCanvas(file, watermarkRef.current);
     }));
     // if(process.env.NODE_ENV === 'development'){
-    //     const url = URL.createObjectURL(watermarkImages[0]);
-    //     console.log(url, "watermarked image URL");
-    //         window.open(url, '_blank'); // Opens the image in a new tab
-    //         return
-    // }
-
-//     watermarkImages.forEach((blob, i) => {
-//   const url = URL.createObjectURL(blob);
-//   console.log(`Watermarked image ${i}:`, url);
-// });
-    console.log(watermarkImages.length, "watermarkImages");
-    const formData = new FormData();
-    formData.append("sku", sku);
-
-    for(let i=0; i< watermarkImages.length; i++){
-      const ext = getFileExtension(eventFiles[i]);
-      formData.append("images", eventFiles[i], eventFiles[i].name),
-      formData.append("watermark", watermarkImages[i], `${watermarkImages[i].name}.${ext}`)
-    }
-
-    // let newImages = [];
-    // for(let i=0; i< eventFiles.length; i++){
-    //     const ext = getFileExtension(eventFiles[i]);
-    //     const imageBase64 = await fileOrBlobToBase64(eventFiles[i]);
-    // const watermarkBase64 = await fileOrBlobToBase64(watermarkImages[i]);
-    //     newImages.push({
-    //         imageUrl: imageBase64,
-    //         watermarkUrl: watermarkBase64,
-    //         image: imageBase64,
-    //         watermark: watermarkBase64,
-    //         ext,
-    //         name: eventFiles[i].name,
-    //     });
-    // }
-
-
-    
-    
-    const response = await fetch(`${ENV.VITE_API_URL}/upload`,{
-      method:"POST",
-      body: formData
-    })
-
-    const data = await response.json()
-    console.log(data,'response from server');
-
-
-    // console.log(newImages, "newImages");
-    setLoadingImages(0)
-    setSelectedImages((prevImages) => {
-      const updatedImages = [...prevImages, ...data.images];
-      console.log(updatedImages, "updatedImages"); // Log the updated state here
-      return updatedImages;
-    });
+      //     const url = URL.createObjectURL(watermarkImages[0]);
+      //     console.log(url, "watermarked image URL");
+      //         window.open(url, '_blank'); // Opens the image in a new tab
+      //         return
+      // }
+      
+      //     watermarkImages.forEach((blob, i) => {
+        //   const url = URL.createObjectURL(blob);
+        //   console.log(`Watermarked image ${i}:`, url);
+        // });
+        console.log(watermarkImages.length, "watermarkImages",'uploading sku:',values.originalSku||values.sku );
+        const formData = new FormData();
+        formData.append("sku", values.originalSku||values.sku);
+        
+        for(let i=0; i< watermarkImages.length; i++){
+          const ext = getFileExtension(eventFiles[i]);
+          formData.append("images", eventFiles[i], eventFiles[i].name),
+          formData.append("watermark", watermarkImages[i], `${watermarkImages[i].name}.${ext}`)
+        }
+        
+        // let newImages = [];
+        // for(let i=0; i< eventFiles.length; i++){
+          //     const ext = getFileExtension(eventFiles[i]);
+          //     const imageBase64 = await fileOrBlobToBase64(eventFiles[i]);
+          // const watermarkBase64 = await fileOrBlobToBase64(watermarkImages[i]);
+          //     newImages.push({
+            //         imageUrl: imageBase64,
+            //         watermarkUrl: watermarkBase64,
+            //         image: imageBase64,
+            //         watermark: watermarkBase64,
+            //         ext,
+            //         name: eventFiles[i].name,
+            //     });
+            // }
+            
+            
+            
+            if(onUpload&&values.originalSku==='') onUpload(values.sku)
+              
+              const response = await fetch(`${ENV.VITE_API_URL}/upload`,{
+                  method:"POST",
+                  body: formData
+                })
+                
+                const data = await response.json()
+                console.log(data,'response from server');
+                
+                
+                // console.log(newImages, "newImages");
+                setLoadingImages(0)
+                setSelectedImages((prevImages) => {
+                    const updatedImages = [...prevImages, ...data.images];
+                    console.log(updatedImages, "updatedImages"); // Log the updated state here
+                    return updatedImages;
+                  });
+                  if (fileInputRef && fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
   };
 
  async function addWatermarkContrastCanvas(inputFile, watermarkUrl, position = 'center') {
@@ -218,7 +222,7 @@ const handleDrop = (e) => {
                 <p className="text-gray-700 text-sm font-medium mt-2">Choose a file or drag and drop it here</p>
               </div>
               <input
-                required={isRequired}
+                // required={isRequired}
                 type="file"
                 accept="image/*"
                 multiple

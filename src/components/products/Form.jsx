@@ -46,7 +46,14 @@ function DraggableImage({ image, index, moveImage, deleteImage }) {
 }
 
 export default function Form({setProducts,products,showUploadDetails}) {
-
+  let originalValues = {
+    originalSku:'',
+    sku: "",
+    notes: "",
+    images: [],
+    // qty:1,
+    width:3.5
+  }
   const [isDragging, setIsDragging] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isRequired,setIsRequired] = useState(true);
@@ -54,13 +61,7 @@ export default function Form({setProducts,products,showUploadDetails}) {
   const [exists, setExists] = useState(false);
   const [isTie,setIsTie] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]); // Store image data as objects
-  const [values, setValues] = useState({
-    sku: "",
-    notes: "",
-    images: [],
-    // qty:1,
-    width:3.5
-  });
+  const [values, setValues] = useState({...originalValues});
  
 
 useEffect(()=>{
@@ -86,7 +87,7 @@ useEffect(()=>{
   },[values])
   useEffect(() => {
     document.addEventListener('keypress', (e) => {
-      console.log(e.key, "key pressed",isButtonDisabled);
+      // console.log(e.key, "key pressed",isButtonDisabled);
       if(e.key === "Enter" && !isButtonDisabled){
         onSubmit(e)
       }
@@ -129,7 +130,7 @@ useEffect(()=>{
 
 
 
-  const handleSkuCheck = async (e) => { 
+  const handleSkuCheck = async (e) => {
     if(values.sku.length === 0) return;
 
     let response = await fetch(`${ENV.VITE_API_URL}/checksku?sku=${e.target.value}`)
@@ -159,6 +160,10 @@ useEffect(()=>{
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
+    if(name === "sku"){
+      setExists(false)
+    }
+
     setValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
@@ -173,11 +178,7 @@ useEffect(()=>{
     console.log("Form submitted with values:", newValues); // Log the updated values
     setProducts(prevValues => [...prevValues, newValues]); // Update the products state with the new values
 
-    setValues({
-    sku: "",
-    notes: "",
-    images: [],
-  });
+    setValues({...originalValues});
     setSelectedImages([]);
     fileInputRef.current.value = "";
     setExists(false)
@@ -208,6 +209,7 @@ useEffect(()=>{
               value={values.sku}
               className={`border-2 border-black rounded-lg p-2 ${exists? 'border-red-700 border-4': ''}`}
             />
+            <span className="text-red-700">{exists? 'SKU already exists choose another sku': ''}</span>
           </div>
           <div className={`flex flex-row w-full gap-2 p-4 ${isTie ?  "visible": "hidden" }`}> 
                 {/* <div className="flex flex-col  w-full">
@@ -232,7 +234,11 @@ useEffect(()=>{
           </div>
           
               {values.sku.length > 0 ? 
-              <ImageUpload  fileInputRef={fileInputRef} isRequired={isRequired} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages} sku={values.sku}/>
+              <ImageUpload  fileInputRef={fileInputRef} isRequired={isRequired} loadingImage={loadingImage} setSelectedImages={setSelectedImages} setLoadingImages={setLoadingImages} values={values} onUpload={(sku)=> 
+                {
+                  console.log(sku);
+                  setValues((prev)=>({...prev,originalSku:sku}));
+                }}/>
               : <span className="p-4 text-red-700">Enter SKU to upload images</span>
               }
           
